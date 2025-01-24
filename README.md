@@ -6,7 +6,7 @@ This project involves a comprehensive analysis of Netflix's movies and TV shows 
 
 ## Objectives
 
---Analyzed the distribution of content types (Movies vs. TV Shows)
+--Analyzed the distribution of content types (Movies vs. TV Shows) 
 I compared the number of movies and TV shows in the catalog and examined how this distribution varied across different countries.
 
 --Explored content ratings
@@ -51,245 +51,156 @@ CREATE TABLE netflix
 );
 ```
 
-## Business Problems and Solutions
-
-### 1. Count the Number of Movies vs TV Shows
-
-```sql
+Business Problems and Solutions
+1. Analyze the Distribution of Content Types (Movies vs. TV Shows)
+sql
+Copiar
+Editar
 SELECT 
     type,
-    COUNT(*)
-FROM netflix
-GROUP BY 1;
-```
+    COUNT(*) AS distribution 
+FROM netflix 
+GROUP BY type;
+Objective: Determine the distribution of content types on Netflix (Movies vs. TV Shows).
 
-**Objective:** Determine the distribution of content types on Netflix.
-
-### 2. Find the Most Common Rating for Movies and TV Shows
-
-```sql
-WITH RatingCounts AS (
+2. Analyze the Distribution of Content Types by Country
+sql
+Copiar
+Editar
+WITH Bignum AS (
     SELECT 
-        type,
-        rating,
-        COUNT(*) AS rating_count
-    FROM netflix
-    GROUP BY type, rating
-),
-RankedRatings AS (
+        type, 
+        COUNT(type) AS distribution_number, 
+        country 
+    FROM netflix 
+    WHERE country = 'Canada' -- SELECT THE COUNTRY 
+    GROUP BY type, country
+),  
+Distribution_Percentage AS (
     SELECT 
-        type,
-        rating,
-        rating_count,
-        RANK() OVER (PARTITION BY type ORDER BY rating_count DESC) AS rank
-    FROM RatingCounts
-)
+        type, 
+        CAST(COUNT(*) * 100 / SUM(COUNT(*)) OVER () AS DECIMAL(4, 2)) AS distribution_percentage, 
+        country 
+    FROM netflix 
+    WHERE country = 'Canada' -- SELECT THE COUNTRY 
+    GROUP BY type, country
+)  
 SELECT 
-    type,
-    rating AS most_frequent_rating
-FROM RankedRatings
-WHERE rank = 1;
-```
+    bn.type, 
+    bn.distribution_number, 
+    dp.distribution_percentage, 
+    bn.country 
+FROM Distribution_Percentage dp 
+JOIN Bignum bn 
+ON dp.type = bn.type;
+Objective: Analyze the distribution of content types (Movies vs. TV Shows) for a specific country.
 
-**Objective:** Identify the most frequently occurring rating for each type of content.
+3. Identify the Most Common Ratings for Movies and TV Shows
+sql
+Copiar
+Editar
+SELECT 
+    type, 
+    rating, 
+    COUNT(*) AS rating_count 
+FROM netflix 
+GROUP BY type, rating 
+ORDER BY rating_count DESC;
+Objective: Identify the most frequently assigned ratings for Movies and TV Shows on Netflix.
 
-### 3. List All Movies Released in a Specific Year (e.g., 2020)
+4. Analyze Content Production Trends Over the Years
+sql
+Copiar
+Editar
+SELECT 
+    type, 
+    release_year, 
+    COUNT(*) AS number_of_productions, 
+    rating 
+FROM netflix 
+WHERE type = 'Movie' -- Filter by Movies or TV Shows 
+GROUP BY type, release_year, rating 
+ORDER BY release_year DESC;
+Objective: Examine how content production has evolved over the years, broken down by type and rating.
 
-```sql
-SELECT * 
-FROM netflix
-WHERE release_year = 2020;
-```
+5. Categorize Content Based on Genres
+sql
+Copiar
+Editar
+SELECT 
+    listed_in, 
+    COUNT(*) AS number_of_content 
+FROM netflix 
+GROUP BY listed_in 
+ORDER BY number_of_content DESC;
+Objective: Categorize content based on genres and analyze the number of items in each category.
 
-**Objective:** Retrieve all movies released in a specific year.
-
-### 4. Find the Top 5 Countries with the Most Content on Netflix
-
-```sql
-SELECT * 
-FROM
-(
+6. Identify Short Movies and Limited TV Shows
+Movies with Duration ≤ 90 Minutes
+sql
+Copiar
+Editar
+WITH Movies_less_than_90min AS (
     SELECT 
-        UNNEST(STRING_TO_ARRAY(country, ',')) AS country,
-        COUNT(*) AS total_content
-    FROM netflix
-    GROUP BY 1
-) AS t1
-WHERE country IS NOT NULL
-ORDER BY total_content DESC
-LIMIT 5;
-```
-
-**Objective:** Identify the top 5 countries with the highest number of content items.
-
-### 5. Identify the Longest Movie
-
-```sql
+        title, 
+        TRY_CAST(REPLACE(duration, 'min', '') AS INT) AS duration_min_or_season 
+    FROM netflix 
+    WHERE type = 'Movie'
+)  
 SELECT 
-    *
-FROM netflix
-WHERE type = 'Movie'
-ORDER BY SPLIT_PART(duration, ' ', 1)::INT DESC;
-```
-
-**Objective:** Find the movie with the longest duration.
-
-### 6. Find Content Added in the Last 5 Years
-
-```sql
-SELECT *
-FROM netflix
-WHERE TO_DATE(date_added, 'Month DD, YYYY') >= CURRENT_DATE - INTERVAL '5 years';
-```
-
-**Objective:** Retrieve content added to Netflix in the last 5 years.
-
-### 7. Find All Movies/TV Shows by Director 'Rajiv Chilaka'
-
-```sql
-SELECT *
-FROM (
+    title, 
+    duration_min_or_season 
+FROM Movies_less_than_90min 
+WHERE duration_min_or_season <= 90 
+ORDER BY duration_min_or_season DESC;
+TV Shows with Less Than 1 Season
+sql
+Copiar
+Editar
+WITH Season AS (
     SELECT 
-        *,
-        UNNEST(STRING_TO_ARRAY(director, ',')) AS director_name
-    FROM netflix
-) AS t
-WHERE director_name = 'Rajiv Chilaka';
-```
-
-**Objective:** List all content directed by 'Rajiv Chilaka'.
-
-### 8. List All TV Shows with More Than 5 Seasons
-
-```sql
-SELECT *
-FROM netflix
-WHERE type = 'TV Show'
-  AND SPLIT_PART(duration, ' ', 1)::INT > 5;
-```
-
-**Objective:** Identify TV shows with more than 5 seasons.
-
-### 9. Count the Number of Content Items in Each Genre
-
-```sql
+        title, 
+        TRY_CAST(REPLACE(duration, 'Season', '') AS INT) AS seasons 
+    FROM netflix 
+    WHERE type = 'TV Show'
+)  
 SELECT 
-    UNNEST(STRING_TO_ARRAY(listed_in, ',')) AS genre,
-    COUNT(*) AS total_content
-FROM netflix
-GROUP BY 1;
-```
+    title, 
+    seasons 
+FROM Season 
+WHERE seasons = 1;
+Objective: Identify Movies with a runtime of 90 minutes or less and TV Shows with only one season.
 
-**Objective:** Count the number of content items in each genre.
-
-### 10.Find each year and the average numbers of content release in India on netflix. 
-return top 5 year with highest avg content release!
-
-```sql
-SELECT 
-    country,
-    release_year,
-    COUNT(show_id) AS total_release,
-    ROUND(
-        COUNT(show_id)::numeric /
-        (SELECT COUNT(show_id) FROM netflix WHERE country = 'India')::numeric * 100, 2
-    ) AS avg_release
-FROM netflix
-WHERE country = 'India'
-GROUP BY country, release_year
-ORDER BY avg_release DESC
-LIMIT 5;
-```
-
-**Objective:** Calculate and rank years by the average number of content releases by India.
-
-### 11. List All Movies that are Documentaries
-
-```sql
-SELECT * 
-FROM netflix
-WHERE listed_in LIKE '%Documentaries';
-```
-
-**Objective:** Retrieve all movies classified as documentaries.
-
-### 12. Find All Content Without a Director
-
-```sql
-SELECT * 
-FROM netflix
-WHERE director IS NULL;
-```
-
-**Objective:** List content that does not have a director.
-
-### 13. Find How Many Movies Actor 'Salman Khan' Appeared in the Last 10 Years
-
-```sql
-SELECT * 
-FROM netflix
-WHERE casts LIKE '%Salman Khan%'
-  AND release_year > EXTRACT(YEAR FROM CURRENT_DATE) - 10;
-```
-
-**Objective:** Count the number of movies featuring 'Salman Khan' in the last 10 years.
-
-### 14. Find the Top 10 Actors Who Have Appeared in the Highest Number of Movies Produced in India
-
-```sql
-SELECT 
-    UNNEST(STRING_TO_ARRAY(casts, ',')) AS actor,
-    COUNT(*)
-FROM netflix
-WHERE country = 'India'
-GROUP BY actor
-ORDER BY COUNT(*) DESC
-LIMIT 10;
-```
-
-**Objective:** Identify the top 10 actors with the most appearances in Indian-produced movies.
-
-### 15. Categorize Content Based on the Presence of 'Kill' and 'Violence' Keywords
-
-```sql
-SELECT 
-    category,
-    COUNT(*) AS content_count
-FROM (
+7. Categorize Content Based on Keywords
+sql
+Copiar
+Editar
+WITH Label AS (
     SELECT 
+        *, 
         CASE 
-            WHEN description ILIKE '%kill%' OR description ILIKE '%violence%' THEN 'Bad'
-            ELSE 'Good'
-        END AS category
+            WHEN description LIKE '%kill%' OR description LIKE '%violence%' THEN 'Bad Content' 
+            ELSE 'Good Content' 
+        END AS category 
     FROM netflix
-) AS categorized_content
+)  
+SELECT 
+    category, 
+    COUNT(*) AS total_content 
+FROM Label 
 GROUP BY category;
-```
-
-**Objective:** Categorize content as 'Bad' if it contains 'kill' or 'violence' and 'Good' otherwise. Count the number of items in each category.
+Objective: Categorize content as 'Bad' if it contains keywords such as 'kill' or 'violence,' otherwise categorize it as 'Good.'
 
 ## Findings and Conclusion
 
 - **Content Distribution:** The dataset contains a diverse range of movies and TV shows with varying ratings and genres.
 - **Common Ratings:** Insights into the most common ratings provide an understanding of the content's target audience.
-- **Geographical Insights:** The top countries and the average content releases by India highlight regional content distribution.
+- **Geographical Insights:** The count of content releases by Brazil highlight regional content distribution.
 - **Content Categorization:** Categorizing content based on specific keywords helps in understanding the nature of content available on Netflix.
 
 This analysis provides a comprehensive view of Netflix's content and can help inform content strategy and decision-making.
 
 
 
-## Author - Zero Analyst
 
-This project is part of my portfolio, showcasing the SQL skills essential for data analyst roles. If you have any questions, feedback, or would like to collaborate, feel free to get in touch!
 
-### Stay Updated and Join the Community
-
-For more content on SQL, data analysis, and other data-related topics, make sure to follow me on social media and join our community:
-
-- **YouTube**: [Subscribe to my channel for tutorials and insights](https://www.youtube.com/@zero_analyst)
-- **Instagram**: [Follow me for daily tips and updates](https://www.instagram.com/zero_analyst/)
-- **LinkedIn**: [Connect with me professionally](https://www.linkedin.com/in/najirr)
-- **Discord**: [Join our community to learn and grow together](https://discord.gg/36h5f2Z5PK)
-
-Thank you for your support, and I look forward to connecting with you!
