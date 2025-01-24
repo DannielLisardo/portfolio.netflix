@@ -6,22 +6,22 @@ This project involves a comprehensive analysis of Netflix's movies and TV shows 
 
 ## Objectives
 
---Analyzed the distribution of content types (Movies vs. TV Shows) 
+### 1️⃣ Analyzed the distribution of content types (Movies vs. TV Shows) 
 I compared the number of movies and TV shows in the catalog and examined how this distribution varied across different countries.
 
---Explored content ratings
+### 2️⃣ Explored content ratings
 I identified the most common ratings globally and analyzed the differences between movies and TV shows. Additionally, I observed the distribution of specific ratings by country.
 
---Assessed production trends over time
+### 3️⃣ Assessed production trends over time
 I investigated how content production changed over the years, categorizing by content type (movies and TV shows) and ratings.
 
---Categorized and filtered content based on specific criteria
+### 4️⃣ Categorized and filtered content based on specific criteria
 I classified content as "good" or "bad" based on the presence of keywords in descriptions, identified movies with a runtime of 90 minutes or less, and selected TV shows with only one season.
 
---Analyzed content distribution by country
+### 5️⃣ Analyzed content distribution by country
 I separated countries listed in each row individually and determined the number of pieces of content distributed in each country.
 
---Grouped content by genre
+### 6️⃣ Grouped content by genre
 I counted and listed the number of pieces of content associated with each genre in the listed_in column.
 
 ## Dataset
