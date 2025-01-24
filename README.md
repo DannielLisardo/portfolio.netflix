@@ -36,18 +36,18 @@ The data for this project is sourced from the Kaggle dataset:
 DROP TABLE IF EXISTS netflix;
 CREATE TABLE netflix
 (
-    show_id      VARCHAR(5),
-    type         VARCHAR(10),
-    title        VARCHAR(250),
-    director     VARCHAR(550),
-    casts        VARCHAR(1050),
-    country      VARCHAR(550),
-    date_added   VARCHAR(55),
-    release_year INT,
-    rating       VARCHAR(15),
-    duration     VARCHAR(15),
-    listed_in    VARCHAR(250),
-    description  VARCHAR(550)
+    	show_id	nvarchar(255),
+	type	nvarchar(255),
+	title	nvarchar(255),
+	director	nvarchar(255),
+	cast	nvarchar(max),
+	country	nvarchar(255),
+	date_added	nvarchar(255),
+	release_year	nvarchar(255),
+	rating	nvarchar(255),
+	duration	nvarchar(255),
+	listed_in	nvarchar(255),
+	description nvarchar(max)
 );
 ```
 
