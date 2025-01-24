@@ -4,7 +4,8 @@
 ## Overview
 This project involves a comprehensive analysis of Netflix's movies and TV shows data using SQL. The goal is to extract valuable insights and answer various business questions based on the dataset. The following README provides a detailed account of the project's objectives, business problems, solutions, findings, and conclusions.
 
-## Objectives
+
+## 🎯 Business Objectives and Solutions
 
 ### 1️⃣ Analyzed the distribution of content types (Movies vs. TV Shows) 
 I compared the number of movies and TV shows in the catalog and examined how this distribution varied across different countries.
@@ -49,43 +50,8 @@ CREATE TABLE netflix
 	listed_in	nvarchar(255),
 	description nvarchar(max)
 );
-```
 
-## 🎯 Business Objectives and Solutions
 
-### 1️⃣ Analyze the Distribution of Content Types (Movies vs. TV Shows)
-**Objective:** Compare the number of movies and TV shows in the catalog and examine how this distribution varies across different countries.  
-**Solution:** The content types were grouped, and counts were calculated for each type, including variations by country.
-
----
-
-### 2️⃣ Explore Content Ratings
-**Objective:** Identify the most common ratings globally and analyze the differences between movies and TV shows. Additionally, observe how specific ratings are distributed by country.  
-**Solution:** Rankings and counts of ratings were computed for both global and country-specific analyses.
-
----
-
-### 3️⃣ Assess Production Trends Over Time
-**Objective:** Investigate how content production has changed over the years, categorized by content type (movies vs. TV shows) and ratings.  
-**Solution:** Content production data was grouped by year, type, and rating to uncover historical trends.
-
----
-
-### 4️⃣ Categorize and Filter Content Based on Specific Criteria
-**Objective:** Classify content as "good" or "bad" based on the presence of keywords in descriptions. Identify movies with a runtime of 90 minutes or less and TV shows with only one season.  
-**Solution:** Filters and keyword-based categorization were applied to classify and retrieve content matching these specific criteria.
-
----
-
-### 5️⃣ Analyze Content Distribution by Country
-**Objective:** Determine the number of pieces of content distributed in each country by separating countries listed in each row individually.  
-**Solution:** Countries were extracted from the dataset, grouped, and their respective content counts were calculated.
-
----
-
-### 6️⃣ Group Content by Genre
-**Objective:** Count and list the number of pieces of content associated with each genre in the `listed_in` column.  
-**Solution:** Genres were extracted from the dataset, and counts for each were computed to summarize content distribution by genre.
 
 ---
 
