@@ -51,7 +51,7 @@ CREATE TABLE netflix
 	description nvarchar(max)
 );
 
-
+```
 
 ---
 
