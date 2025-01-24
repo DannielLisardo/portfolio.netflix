@@ -51,145 +51,43 @@ CREATE TABLE netflix
 );
 ```
 
-Business Problems and Solutions
-1. Analyze the Distribution of Content Types (Movies vs. TV Shows)
-sql
-Copiar
-Editar
-SELECT 
-    type,
-    COUNT(*) AS distribution 
-FROM netflix 
-GROUP BY type;
-Objective: Determine the distribution of content types on Netflix (Movies vs. TV Shows).
+## 🎯 Business Objectives and Solutions
 
-2. Analyze the Distribution of Content Types by Country
-sql
-Copiar
-Editar
-WITH Bignum AS (
-    SELECT 
-        type, 
-        COUNT(type) AS distribution_number, 
-        country 
-    FROM netflix 
-    WHERE country = 'Canada' -- SELECT THE COUNTRY 
-    GROUP BY type, country
-),  
-Distribution_Percentage AS (
-    SELECT 
-        type, 
-        CAST(COUNT(*) * 100 / SUM(COUNT(*)) OVER () AS DECIMAL(4, 2)) AS distribution_percentage, 
-        country 
-    FROM netflix 
-    WHERE country = 'Canada' -- SELECT THE COUNTRY 
-    GROUP BY type, country
-)  
-SELECT 
-    bn.type, 
-    bn.distribution_number, 
-    dp.distribution_percentage, 
-    bn.country 
-FROM Distribution_Percentage dp 
-JOIN Bignum bn 
-ON dp.type = bn.type;
-Objective: Analyze the distribution of content types (Movies vs. TV Shows) for a specific country.
+### 1️⃣ Analyze the Distribution of Content Types (Movies vs. TV Shows)
+**Objective:** Compare the number of movies and TV shows in the catalog and examine how this distribution varies across different countries.  
+**Solution:** The content types were grouped, and counts were calculated for each type, including variations by country.
 
-3. Identify the Most Common Ratings for Movies and TV Shows
-sql
-Copiar
-Editar
-SELECT 
-    type, 
-    rating, 
-    COUNT(*) AS rating_count 
-FROM netflix 
-GROUP BY type, rating 
-ORDER BY rating_count DESC;
-Objective: Identify the most frequently assigned ratings for Movies and TV Shows on Netflix.
+---
 
-4. Analyze Content Production Trends Over the Years
-sql
-Copiar
-Editar
-SELECT 
-    type, 
-    release_year, 
-    COUNT(*) AS number_of_productions, 
-    rating 
-FROM netflix 
-WHERE type = 'Movie' -- Filter by Movies or TV Shows 
-GROUP BY type, release_year, rating 
-ORDER BY release_year DESC;
-Objective: Examine how content production has evolved over the years, broken down by type and rating.
+### 2️⃣ Explore Content Ratings
+**Objective:** Identify the most common ratings globally and analyze the differences between movies and TV shows. Additionally, observe how specific ratings are distributed by country.  
+**Solution:** Rankings and counts of ratings were computed for both global and country-specific analyses.
 
-5. Categorize Content Based on Genres
-sql
-Copiar
-Editar
-SELECT 
-    listed_in, 
-    COUNT(*) AS number_of_content 
-FROM netflix 
-GROUP BY listed_in 
-ORDER BY number_of_content DESC;
-Objective: Categorize content based on genres and analyze the number of items in each category.
+---
 
-6. Identify Short Movies and Limited TV Shows
-Movies with Duration ≤ 90 Minutes
-sql
-Copiar
-Editar
-WITH Movies_less_than_90min AS (
-    SELECT 
-        title, 
-        TRY_CAST(REPLACE(duration, 'min', '') AS INT) AS duration_min_or_season 
-    FROM netflix 
-    WHERE type = 'Movie'
-)  
-SELECT 
-    title, 
-    duration_min_or_season 
-FROM Movies_less_than_90min 
-WHERE duration_min_or_season <= 90 
-ORDER BY duration_min_or_season DESC;
-TV Shows with Less Than 1 Season
-sql
-Copiar
-Editar
-WITH Season AS (
-    SELECT 
-        title, 
-        TRY_CAST(REPLACE(duration, 'Season', '') AS INT) AS seasons 
-    FROM netflix 
-    WHERE type = 'TV Show'
-)  
-SELECT 
-    title, 
-    seasons 
-FROM Season 
-WHERE seasons = 1;
-Objective: Identify Movies with a runtime of 90 minutes or less and TV Shows with only one season.
+### 3️⃣ Assess Production Trends Over Time
+**Objective:** Investigate how content production has changed over the years, categorized by content type (movies vs. TV shows) and ratings.  
+**Solution:** Content production data was grouped by year, type, and rating to uncover historical trends.
 
-7. Categorize Content Based on Keywords
-sql
-Copiar
-Editar
-WITH Label AS (
-    SELECT 
-        *, 
-        CASE 
-            WHEN description LIKE '%kill%' OR description LIKE '%violence%' THEN 'Bad Content' 
-            ELSE 'Good Content' 
-        END AS category 
-    FROM netflix
-)  
-SELECT 
-    category, 
-    COUNT(*) AS total_content 
-FROM Label 
-GROUP BY category;
-Objective: Categorize content as 'Bad' if it contains keywords such as 'kill' or 'violence,' otherwise categorize it as 'Good.'
+---
+
+### 4️⃣ Categorize and Filter Content Based on Specific Criteria
+**Objective:** Classify content as "good" or "bad" based on the presence of keywords in descriptions. Identify movies with a runtime of 90 minutes or less and TV shows with only one season.  
+**Solution:** Filters and keyword-based categorization were applied to classify and retrieve content matching these specific criteria.
+
+---
+
+### 5️⃣ Analyze Content Distribution by Country
+**Objective:** Determine the number of pieces of content distributed in each country by separating countries listed in each row individually.  
+**Solution:** Countries were extracted from the dataset, grouped, and their respective content counts were calculated.
+
+---
+
+### 6️⃣ Group Content by Genre
+**Objective:** Count and list the number of pieces of content associated with each genre in the `listed_in` column.  
+**Solution:** Genres were extracted from the dataset, and counts for each were computed to summarize content distribution by genre.
+
+---
 
 ## Findings and Conclusion
 
